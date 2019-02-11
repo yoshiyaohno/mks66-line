@@ -1,11 +1,13 @@
-import qualified Data.Set       as S
-import qualified Data.List      as L
+import qualified Data.Set        as S
+import qualified Data.List       as L
 import qualified Data.Map.Strict as M
 
-data Line   = Line Point Point       deriving (Show)
+data Line   = Line Point Point deriving (Show)
 data Point  = Point {getX::Int, getY::Int} deriving (Eq, Ord)
 data Color  = Color {r::Int, g::Int, b::Int}
+
 type Pixels = M.Map Point Color
+-- if I want to do more cool stuff this is going to have to be a newtype
 
 blk = Color 0 0 0
 red = Color 255 0 0
@@ -24,16 +26,21 @@ instance Show Color where
 ppmHeader :: (Int, Int) -> String
 ppmHeader (w, h) = "P3 " ++ show w ++ " " ++ show h ++ " 255\n"
 
+-- all (non-permuted) pairs of a list
 allPairs :: [a] -> [(a, a)]
 allPairs []     = []
 allPairs (_:[]) = []
 allPairs (x:xs) = map ((,) x) xs ++ allPairs xs
+-- look at me actually writing comments
 
 main = do
-    let points  = polygon 25 450 (Point 500 500)
+    let points  = polygon 21 255 (Point 300 300)
         lines   = [Line p0 p1 | (p0, p1) <- allPairs points]
-        drawing = [plotLine l red | l <- lines]
-    putStrLn $ printPixels (1000,1000) (mconcat drawing)
+        drawing = [plotLine (Line p0 p1)
+                            (Color  ((getX p0 + getX p1) `div` 4) 0
+                                    ((getY p0 + getY p1) `div` 4))
+                    | (Line p0 p1) <- lines]
+    writeFile "out.ppm" (printPixels (600, 600) (mconcat drawing))
 
 -- floating point math :'(
 polygon :: (Integral a) => a -> a -> Point -> [Point]
@@ -45,10 +52,12 @@ polygon s r (Point x y) =
 -- cmon haskell I'm just trying to multiply a sine why do you have to make
 --  the typing so hard
 
+-- takes bounds and a screen and puts in ppm format
 printPixels :: (Int, Int) -> Pixels -> String
 printPixels (w, h) pxs =
-    ppmHeader (w, h) ++
-    unwords [show . f $ M.lookup (Point x y) pxs | x <- [0..w-1], y <- [0..h-1]]
+    ppmHeader (w, h)
+    ++ (unlines . map unwords $ [[show . f $ M.lookup (Point x y) pxs
+                | x <- [0..w-1]] | y <- [0..h-1]])
     where   f Nothing  = Color 0 0 0
             f (Just c) = c 
 
@@ -84,7 +93,6 @@ _rLy (Line (Point x0 y0) (Point x1 y1)) =
             dx = x1 - x0
 
 -- persuit curve
---
 --    let lines = [(Line (Point x 0) (Point 0 (255-x))) | x <- [0,5..255]]
 --        drawing = [plotLine (Line p0 p1) (Color ((getX p0)+(getX p1))
 --                                                0
