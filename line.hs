@@ -1,5 +1,3 @@
-module Line where
-
 import qualified Data.Set        as S
 import qualified Data.List       as L
 import qualified Data.Map.Strict as M
@@ -35,6 +33,7 @@ allPairs (_:[]) = []
 allPairs (x:xs) = map ((,) x) xs ++ allPairs xs
 -- look at me actually writing comments
 
+main :: IO ()
 main = do
     let points  = polygon 60 255 (Point 470 470)
         lines   = [drawLine (Line p0 p1)

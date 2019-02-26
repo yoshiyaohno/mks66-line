@@ -1,5 +1,5 @@
 all: line.hs
-	ghc line.hs -O2
+	ghc -O2 -dynamic line
 	@echo now make run
 
 run:
