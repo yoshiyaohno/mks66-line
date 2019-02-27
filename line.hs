@@ -35,14 +35,14 @@ allPairs (x:xs) = map ((,) x) xs ++ allPairs xs
 
 main :: IO ()
 main = do
-    let points  = polygon 60 255 (Point 470 470)
+    let points  = polygon 21 255 (Point 270 270)
         lines   = [drawLine (Line p0 p1)
                             (Color  ((getX p0 + getX p1) `div` 4)
                                     ((getY p0 + getY p1) `div` 4)
                                     ((getX p0 + getY p0) `div` 2))
                     | (p0, p1) <- allPairs points]
         drawing = foldr ($) M.empty lines
-    writeFile "out.ppm" (printPixels (900, 900) drawing)
+    writeFile "out.ppm" (printPixels (600, 600) drawing)
 
 -- floating point math :'(
 polygon :: (Integral a) => a -> a -> Point -> [Point]
